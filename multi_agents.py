@@ -182,7 +182,19 @@ class MinmaxAgent(MultiAgentSearchAgent):
             Returns the successor game state after an agent takes an action
         """
         """*** YOUR CODE HERE ***"""
-        util.raiseNotDefined()
+        cont = 0
+        my_turn = True
+        ls_actions = []
+        max = 0
+        action_max = None
+        for ac in game_state.get_legal_actions(0):
+            if game_state.evaluation_function(ac) > max:
+                max = game_state.evaluation_function(ac)
+                action_max = ac
+        return action_max
+
+
+
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
