@@ -53,6 +53,72 @@ class ReflexAgent(Agent):
         score = successor_game_state.score
 
         "*** YOUR CODE HERE ***"
+        row_len = len(board)
+        col_len = len(board[0])
+
+        for i in range(row_len):
+            for j in range(col_len):
+                if i == 0 and j == 0:
+                    # (0,0) with (0,1) or (1,0)
+                    if (board[i][j] == board[i + 1][j] or board[i][j] == board[i][
+                        j + 1]) and \
+                            board[i][j] > 0:
+                        score += board[i][j]
+                    continue
+                if i == 0 and j == col_len - 1:
+                    # (0,n-1) with (1,n-1) or (0,n-2)
+                    if (board[i][col_len - 1] == board[i + 1][col_len - 1] or board[i][j] ==
+                        board[0][j - 1]) and \
+                            board[i][j] > 0:
+                        score += board[i][col_len - 1]
+                    continue
+                if i == 0:  # j>0
+                    # (0,j) with (0,j-1) or (i+1,j) or (0,j+1) // j>0
+                    if (board[i][j] == board[i][j - 1] or board[i][j] == board[i][
+                        j + 1] or board[i + 1][j] == board[i][j]) and board[i][j] > 0:
+                        score += board[i][j]
+                    continue
+                if i == row_len - 1 and j == 0:
+                    # (n-1,0) with (n-2,0) or (n-1,1)
+                    if board[i][j] > 0 and (
+                            board[i][j] == board[i - 1][j] or board[i][j] == board[i][
+                        j + 1]):
+                        score += board[i][j]
+                    continue
+                if i == row_len - 1 and j == col_len - 1:
+                    # (n-1,n-1) with (n-2,n-1) or (n-1,n-2)
+                    if board[i][j] > 0 and (
+                            board[i][j] == board[i - 1][j] or board[i][j] == board[i][
+                        j - 1]):
+                        score += board[i][j]
+                    continue
+                if i == row_len - 1:  # j>0
+                    # (n-1,j) with (n-1,j-1) or (n-1,j+1)
+                    if board[i][j] > 0 and (
+                            board[i][j] == board[i][j - 1] or board[i][j] == board[i][
+                        j + 1] or board[i][j] == board[i - 1][j]):
+                        score += board[i][j]
+                    continue
+                if j == 0:
+                    # (i,0) with (i+1,j) or (i-1,j) or (i,j+1)
+                    if board[i][j] > 0 and (
+                            board[i][j] == board[i + 1][j] or board[i][j] == board[i - 1][j] or
+                            board[i][j] == board[i][j + 1]):
+                        score += board[i][j]
+                    continue
+                if j == col_len - 1:
+                    # (i,n-1) with (i+1,n-1) or (i-1,n-1) or (i,n-2)
+                    if board[i][j] > 0 and (board[i][j] == board[i + 1][j] or board[i][j] ==
+                                            board[i - 1][j] or board[i][j] == board[i][j - 1]):
+                        score += board[i][j]
+                    continue
+
+                # general case
+                if board[i][j] > 0 and (
+                        board[i][j] == board[i + 1][j] or board[i][j] == board[i - 1][
+                    j] or board[i][j] == board[i][j - 1] or board[i][j] == board[i][j + 1]):
+                    score += board[i][j]
+
         return score
 
 
@@ -113,7 +179,6 @@ class MinmaxAgent(MultiAgentSearchAgent):
         util.raiseNotDefined()
 
 
-
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
     Your minimax agent with alpha-beta pruning (question 3)
@@ -125,7 +190,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         """*** YOUR CODE HERE ***"""
         util.raiseNotDefined()
-
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
@@ -142,9 +206,6 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         """
         """*** YOUR CODE HERE ***"""
         util.raiseNotDefined()
-
-
-
 
 
 def better_evaluation_function(current_game_state):
