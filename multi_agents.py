@@ -158,6 +158,12 @@ class MultiAgentSearchAgent(Agent):
 
 
 class MinmaxAgent(MultiAgentSearchAgent):
+
+    def minimax(self, curDepth,nodeIdx, maxTurn, scores, targetDepth, game_state):
+        if curDepth == Action.STOP:
+            return scores[nodeIdx]
+        if maxTurn:
+            return max(self.minimax(curDepth+1,nodeIdx*2,False,scores,))
     def get_action(self, game_state):
         """
         Returns the minimax action from the current gameState using self.depth
