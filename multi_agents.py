@@ -176,16 +176,34 @@ class MinmaxAgent(MultiAgentSearchAgent):
             Returns the successor game state after an agent takes an action
         """
         """*** YOUR CODE HERE ***"""
-        cont = 0
-        my_turn = True
-        ls_actions = []
-        max = 0
+        max_score = 0
         action_max = None
         for ac in game_state.get_legal_actions(0):
-            if game_state.evaluation_function(ac) > max:
-                max = game_state.evaluation_function(ac)
+            tmp = game_state.generate_successor(0, ac)
+            cost = self.get_action_r(tmp, 2 * self.depth - 1, 1)
+            if cost > max_score:
+                max_score = cost
                 action_max = ac
+
         return action_max
+
+
+
+    def get_action_r(self, game_state, depth, turn):
+        if depth == 0:
+            return self.evaluation_function(game_state)
+        ls_action = game_state.get_legal_actions(turn)
+        ret_score = -1
+        for i in range(len(ls_action)):
+            this_move = game_state.generate_successor(turn, ls_action[i])
+            score = self.get_action_r(this_move, depth - 1, -1 * turn + 1)
+            if ret_score == -1:
+                ret_score = score
+            elif turn == 1 and ret_score < score:
+                ret_score = score
+            elif turn == 0 and ret_score > score:
+                ret_score = score
+        return ret_score
 
 
 
@@ -201,7 +219,32 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         """*** YOUR CODE HERE ***"""
-        util.raiseNotDefined()
+        max_score = 0
+        action_max = None
+        for ac in game_state.get_legal_actions(0):
+            tmp = game_state.generate_successor(0, ac)
+            cost = self.get_action_r(tmp, 2 * self.depth - 1, 1)
+            if cost > max_score:
+                max_score = cost
+                action_max = ac
+
+        return action_max
+
+    def get_action_r(self, game_state, depth, turn):
+        if depth == 0:
+            return self.evaluation_function(game_state)
+        ls_action = game_state.get_legal_actions(turn)
+        ret_score = -1
+        for i in range(len(ls_action)):
+            this_move = game_state.generate_successor(turn, ls_action[i])
+            score = self.get_action_r(this_move, depth - 1, -1 * turn + 1)
+            if ret_score == -1:
+                ret_score = score
+            elif turn == 1 and ret_score < score:
+                ret_score = score
+            elif turn == 0 and ret_score > score:
+                ret_score = score
+        return ret_score
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
