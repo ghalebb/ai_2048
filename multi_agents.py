@@ -178,8 +178,7 @@ class MinmaxAgent(MultiAgentSearchAgent):
             Returns the successor game state after an agent takes an action
         """
         """*** YOUR CODE HERE ***"""
-        max_score = 0
-        action_max = Action.STOP
+        action_max = None
         alfa = -math.inf
         beta = math.inf
         for ac in game_state.get_legal_actions(0):
@@ -210,9 +209,9 @@ class MinmaxAgent(MultiAgentSearchAgent):
     #     return ret_score
 
     def get_action_r(self, game_state, depth, turn, alfa, beta):
-        if depth == 0:
-            return self.evaluation_function(game_state)
         ls_action = game_state.get_legal_actions(turn)
+        if depth == 0 or len(ls_action) == 0:
+            return self.evaluation_function(game_state)
         if turn == 0:
             for i in range(len(ls_action)):
                 this_move = game_state.generate_successor(turn, ls_action[i])
@@ -240,7 +239,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         """*** YOUR CODE HERE ***"""
-        action_max = Action.STOP
+        action_max = None
         alfa = -math.inf
         beta = math.inf
         for ac in game_state.get_legal_actions(0):
@@ -253,15 +252,16 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         return action_max
 
     def get_action_r(self, game_state, depth, turn, alfa, beta):
-        if depth == 0:
-            return self.evaluation_function(game_state)
         ls_action = game_state.get_legal_actions(turn)
+        if depth == 0 or len(ls_action) == 0:
+            return self.evaluation_function(game_state)
         if turn == 0:
             for i in range(len(ls_action)):
                 this_move = game_state.generate_successor(turn, ls_action[i])
-                score = self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa, beta)
-                if alfa < score:
-                    alfa = score
+                alfa = max(alfa, self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa, beta))
+                # score = self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa, beta)
+                # if alfa < score:
+                #     alfa = score
                 if beta <= alfa:
                     break
             return alfa
@@ -269,10 +269,11 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         else:
             for i in range(len(ls_action)):
                 this_move = game_state.generate_successor(turn, ls_action[i])
-                score = self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa, beta)
-                if score < beta:
-                    beta = score
-                if beta >= alfa:
+                beta = min(beta, self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa, beta))
+                # score = self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa, beta)
+                # if score < beta:
+                #     beta = score
+                if beta <= alfa:
                     break
             return beta
 
@@ -291,7 +292,36 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         """*** YOUR CODE HERE ***"""
-        util.raiseNotDefined()
+        action_max = None
+        alfa = -math.inf
+        for ac in game_state.get_legal_actions(0):
+            tmp = game_state.generate_successor(0, ac)
+            cost = self.get_action_r(tmp, 2 * self.depth - 1, 1, alfa)
+            if cost > alfa:
+                alfa = cost
+                action_max = ac
+
+        return action_max
+
+    def get_action_r(self, game_state, depth, turn, alfa):
+        ls_action = game_state.get_legal_actions(turn)
+        if depth == 0 or len(ls_action) == 0:
+            return self.evaluation_function(game_state)
+        if turn == 0:
+            for i in range(len(ls_action)):
+                this_move = game_state.generate_successor(turn, ls_action[i])
+                alfa = max(alfa, self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa))
+                # score = self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa)
+                # if alfa < score:
+                #     alfa = score
+            return alfa
+
+        else:
+            score = 0
+            for i in range(len(ls_action)):
+                this_move = game_state.generate_successor(turn, ls_action[i])
+                score += self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa) / len(ls_action)
+            return score
 
 
 def better_evaluation_function(current_game_state):
