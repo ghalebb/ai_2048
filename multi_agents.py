@@ -4,7 +4,6 @@ import numpy as np
 import abc
 import util
 from game import Agent, Action
-import math
 
 
 class ReflexAgent(Agent):
@@ -307,6 +306,20 @@ def get_rotated_board(board):
 
     return rotated_board
 
+def smoothness(board):
+    """Smoothness heuristic measures the difference between neighboring tiles and tries to minimize this count"""
+    smoothness = 0
+
+    row, col = len(board), len(board[0]) if len(board) > 0 else 0
+    for r in board:
+        for i in range(col - 1):
+            smoothness -= abs(r[i] - r[i + 1])
+            pass
+    for j in range(row):
+        for k in range(col - 1):
+            smoothness -= abs(board[k][j] - board[k + 1][j])
+
+    return smoothness
 
 def better_evaluation_function(current_game_state):
     """
@@ -318,7 +331,9 @@ def better_evaluation_function(current_game_state):
     board = current_game_state.board
     max_tile = current_game_state.max_tile
     score = current_game_state.score
-
+    empty_cell = 16 - np.count_nonzero(board)
+    weight = {"smooth": 0.1, "mono": 1, "empty": 2.7, "max_tile": 1}
+    smooth = smoothness(board)
     best = -1
     for i in range(1, 4):
         current = 0
@@ -329,7 +344,7 @@ def better_evaluation_function(current_game_state):
 
         for col in range(3):
             for row in range(2):
-                if board[row][col] >= board[row + 1][col]:
+                if board[row][col] >= board[row+1][col]:
                     current += board[row][col]
 
         if current > best:
