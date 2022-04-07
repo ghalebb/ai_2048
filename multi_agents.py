@@ -403,18 +403,20 @@ def best_function(current_game_state):
     if not current_game_state.get_legal_actions(0):
         return current_game_state.score
 
+    board_x = len(current_game_state.board)
+    board_y = len(current_game_state.board[0])
+
     best = -1
     for action in current_game_state.get_legal_actions(0):
         successor_game_state = current_game_state.generate_successor(action=action)
-
         successor_sum = 0
-        for i in range(len(successor_game_state.board)):
-            for j in range(len(successor_game_state.board[i])):
+        for i in range(board_x):
+            for j in range(board_y):
                 successor_sum += successor_game_state.board[i][j] * weight[i][j]
         if successor_sum > best:
             best = successor_sum
 
-    return best
+    return best + current_game_state.score
 
 
 # Abbreviation
