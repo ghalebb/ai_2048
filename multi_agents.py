@@ -161,12 +161,6 @@ class MultiAgentSearchAgent(Agent):
 
 class MinmaxAgent(MultiAgentSearchAgent):
 
-    def minimax(self, curDepth, nodeIdx, maxTurn, scores, targetDepth, game_state):
-        if curDepth == Action.STOP:
-            return scores[nodeIdx]
-        if maxTurn:
-            return max(self.minimax(curDepth + 1, nodeIdx * 2, False, scores, ))
-
     def get_action(self, game_state):
         """
         Returns the minimax action from the current gameState using self.depth
@@ -197,24 +191,6 @@ class MinmaxAgent(MultiAgentSearchAgent):
 
         return action_max
 
-
-
-    # def get_action_r(self, game_state, depth, turn):
-    #     if depth == 0:
-    #         return self.evaluation_function(game_state)
-    #     ls_action = game_state.get_legal_actions(turn)
-    #     ret_score = -1
-    #     for i in range(len(ls_action)):
-    #         this_move = game_state.generate_successor(turn, ls_action[i])
-    #         score = self.get_action_r(this_move, depth - 1, -1 * turn + 1)
-    #         if ret_score == -1:
-    #             ret_score = score
-    #         elif turn == 1 and ret_score < score:
-    #             ret_score = score
-    #         elif turn == 0 and ret_score > score:
-    #             ret_score = score
-    #     return ret_score
-
     def get_action_r(self, game_state, depth, turn, alfa, beta):
         ls_action = game_state.get_legal_actions(turn)
         if depth == 0 or len(ls_action) == 0:
@@ -233,7 +209,6 @@ class MinmaxAgent(MultiAgentSearchAgent):
                 if score < beta:
                     beta = score
             return beta
-
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
@@ -266,9 +241,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             for i in range(len(ls_action)):
                 this_move = game_state.generate_successor(turn, ls_action[i])
                 alfa = max(alfa, self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa, beta))
-                # score = self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa, beta)
-                # if alfa < score:
-                #     alfa = score
                 if beta <= alfa:
                     break
             return alfa
@@ -277,13 +249,9 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             for i in range(len(ls_action)):
                 this_move = game_state.generate_successor(turn, ls_action[i])
                 beta = min(beta, self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa, beta))
-                # score = self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa, beta)
-                # if score < beta:
-                #     beta = score
                 if beta <= alfa:
                     break
             return beta
-
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
@@ -318,17 +286,25 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             for i in range(len(ls_action)):
                 this_move = game_state.generate_successor(turn, ls_action[i])
                 alfa = max(alfa, self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa))
-                # score = self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa)
-                # if alfa < score:
-                #     alfa = score
             return alfa
 
         else:
             score = 0
             for i in range(len(ls_action)):
                 this_move = game_state.generate_successor(turn, ls_action[i])
-                score += self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa) / len(ls_action)
+                score += self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa) / len(
+                    ls_action)
             return score
+
+
+def get_rotated_board(board):
+    """
+    Return rotated view such that the action is RIGHT.
+    """
+    rotated_board = board
+    rotated_board = rotated_board[:, -1::-1]
+
+    return rotated_board
 
 
 def better_evaluation_function(current_game_state):
@@ -338,8 +314,31 @@ def better_evaluation_function(current_game_state):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    board = current_game_state.board
+    max_tile = current_game_state.max_tile
+    score = current_game_state.score
 
+    best = -1
+    for i in range(1, 4):
+        current = 0
+        for row in range(3):
+            for col in range(2):
+                if board[row][col] >= board[row][col + 1]:
+                    current += board[row][col]
+
+        for col in range(3):
+            for row in range(2):
+                if board[row][col] >= board[row+1][col]:
+                    current += board[row][col]
+
+        if current > best:
+            best = current
+        board = get_rotated_board(board)
+
+    return best + score
+
+
+def best():
 
 # Abbreviation
 better = better_evaluation_function
