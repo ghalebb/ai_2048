@@ -317,6 +317,8 @@ def better_evaluation_function(current_game_state):
     board = current_game_state.board
     max_tile = current_game_state.max_tile
     score = current_game_state.score
+    empty_cell = 16 - np.count_nonzero(board)
+    weight = {"smooth": 0.1, "mono": 1, "empty": 2.7, "max_tile": 1}
 
     best = -1
     for i in range(1, 4):
@@ -335,10 +337,10 @@ def better_evaluation_function(current_game_state):
             best = current
         board = get_rotated_board(board)
 
-    return best + score
-
+    return best * weight["mono"] + max_tile * weight["max_tile"] + empty_cell * weight["empty"]
 
 def best():
+    pass
 
 # Abbreviation
 better = better_evaluation_function
