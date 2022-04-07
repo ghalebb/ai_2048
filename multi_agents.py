@@ -412,11 +412,12 @@ def best_function(current_game_state):
         successor_sum = 0
         for i in range(board_x):
             for j in range(board_y):
-                successor_sum += successor_game_state.board[i][j] * weight[i][j]
+                if successor_game_state.board[i][j]>0:
+                    successor_sum += successor_game_state.board[i][j] * weight[i][j]
         if successor_sum > best:
             best = successor_sum
 
-    return best + current_game_state.score
+    return best
 
 
 # Abbreviation
