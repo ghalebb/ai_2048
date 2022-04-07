@@ -339,7 +339,7 @@ def better_evaluation_function(current_game_state):
     return best + score
 
 
-def best_function(current_game_state):
+def mono(current_game_state):
     board = current_game_state.board
     max_tile = current_game_state.max_tile
     score = current_game_state.score
@@ -397,13 +397,13 @@ def best_function(current_game_state):
     return max(totals[0], totals[1]) + max(totals[2], totals[3])
 
 
-def second_best(current_game_state):
-    weight = [[1, 2, 4, 8], [8, 16, 32, 64], [64, 128, 256, 512], [512, 1024, 2048, 4069]]
+def best_function(current_game_state):
+    weight = [[15, 14, 13, 12], [8, 9, 10, 11], [7, 6, 5, 4], [0, 1, 2, 3]]
 
     if not current_game_state.get_legal_actions(0):
         return current_game_state.score
 
-    best_score = 0
+    best = -1
     for action in current_game_state.get_legal_actions(0):
         successor_game_state = current_game_state.generate_successor(action=action)
 
@@ -411,35 +411,12 @@ def second_best(current_game_state):
         for i in range(len(successor_game_state.board)):
             for j in range(len(successor_game_state.board[i])):
                 successor_sum += successor_game_state.board[i][j] * weight[i][j]
-        if successor_sum > best_score:
-            best_score = successor_sum
+        if successor_sum > best:
+            best = successor_sum
 
-    return best_score
+    return best
 
-def third_best(current_game_state):
-    # weight = [[1, 2, 4, 8], [8, 16, 32, 64], [64, 128, 256, 512], [512, 1024, 2048, 4069]]
-    # weight = [[8,4,2,1],[64,32,16,8],[512,256,128,64],[4069,2048,1024,512]]
-    weight = [[],[],[],[]]
-
-    if not current_game_state.get_legal_actions(0):
-        return current_game_state.score
-
-    best_score = 0
-    for action in current_game_state.get_legal_actions(0):
-        successor_game_state = current_game_state.generate_successor(action=action)
-
-        successor_sum = 0
-        for i in range(len(successor_game_state.board)):
-            for j in range(len(successor_game_state.board[i])):
-                successor_sum += successor_game_state.board[i][j] * weight[i][j]
-        if successor_sum > best_score:
-            best_score = successor_sum
-
-    return best_score
 
 # Abbreviation
 better = better_evaluation_function
 best = best_function
-sec = second_best
-third = third_best
-
