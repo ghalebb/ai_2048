@@ -179,36 +179,40 @@ class MinmaxAgent(MultiAgentSearchAgent):
             Returns the successor game state after an agent takes an action
         """
         """*** YOUR CODE HERE ***"""
-        action_max = None
-        alfa = -math.inf
-        beta = math.inf
+        best_action = None
+        best_score = -math.inf
+
         for ac in game_state.get_legal_actions(0):
             tmp = game_state.generate_successor(0, ac)
-            cost = self.get_action_r(tmp, 2 * self.depth - 1, 1, alfa, beta)
-            if cost > alfa:
-                alfa = cost
-                action_max = ac
+            cost = self.minmax(tmp, 2 * self.depth - 1, 1)
+            if cost > best_score:
+                best_score = cost
+                best_action = ac
+        return best_action
 
-        return action_max
-
-    def get_action_r(self, game_state, depth, turn, alfa, beta):
-        ls_action = game_state.get_legal_actions(turn)
-        if depth == 0 or len(ls_action) == 0:
+    def minmax(self, game_state, depth, turn):
+        legal_moves = game_state.get_legal_actions(turn)
+        legal_moves_length = len(legal_moves)
+        if depth == 0 or len(legal_moves) == 0:
             return self.evaluation_function(game_state)
         if turn == 0:
-            for i in range(len(ls_action)):
-                this_move = game_state.generate_successor(turn, ls_action[i])
-                score = self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa, beta)
-                if alfa < score:
-                    alfa = score
-            return alfa
+            highest_score = -math.inf
+            for i in range(legal_moves_length):
+                this_move = game_state.generate_successor(turn, legal_moves[i])
+                score = self.minmax(this_move, depth - 1, -1 * turn + 1)
+                if highest_score < score:
+                    highest_score = score
+            return highest_score
         else:
-            for i in range(len(ls_action)):
-                this_move = game_state.generate_successor(turn, ls_action[i])
-                score = self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa, beta)
-                if score < beta:
-                    beta = score
-            return beta
+            lowest_score = math.inf
+            for i in range(legal_moves_length):
+                this_move = game_state.generate_successor(turn, legal_moves[i])
+                score = self.minmax(this_move, depth - 1, -1 * turn + 1)
+                if score < lowest_score:
+                    lowest_score = score
+            return lowest_score
+
+
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
@@ -306,6 +310,7 @@ def get_rotated_board(board):
 
     return rotated_board
 
+
 def smoothness(board):
     """Smoothness heuristic measures the difference between neighboring tiles and tries to minimize this count"""
     smoothness = 0
@@ -320,6 +325,7 @@ def smoothness(board):
             smoothness -= abs(board[k][j] - board[k + 1][j])
 
     return smoothness
+
 
 def better_evaluation_function(current_game_state):
     """
@@ -344,7 +350,7 @@ def better_evaluation_function(current_game_state):
 
         for col in range(3):
             for row in range(2):
-                if board[row][col] >= board[row+1][col]:
+                if board[row][col] >= board[row + 1][col]:
                     current += board[row][col]
 
         if current > best:
@@ -427,7 +433,7 @@ def best_function(current_game_state):
         successor_sum = 0
         for i in range(board_x):
             for j in range(board_y):
-                if successor_game_state.board[i][j]>0:
+                if successor_game_state.board[i][j] > 0:
                     successor_sum += successor_game_state.board[i][j] * weight[i][j]
         if successor_sum > best:
             best = successor_sum
