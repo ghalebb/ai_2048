@@ -475,34 +475,9 @@ def daniel_try(current_game_state):
                 successor_sum += board[i][j] * weight[i][j]
     return successor_sum
 
-    # if not current_game_state.get_legal_actions(0):
-    #     # return current_game_state.score
-    #     for i in range(board_x):
-    #         for j in range(board_y):
-    #             if board[i][j] > 0:
-    #                 successor_sum += board[i][j] * weight[i][j]
-    #     return successor_sum
-    #
-    # besti = -1
-    # for k in range(4):
-    #     successor_sum = 0
-    #     for i in range(board_x):
-    #         for j in range(board_y):
-    #             if board[i][j] > 0:
-    #                 successor_sum += board[i][j] * weight[i][j]
-    #     if successor_sum > besti:
-    #         besti = successor_sum
-    #     board = get_rotated_board(board)
-    #
-    # return besti
-
 
 def daniel(current_game_state):
     return daniel_try(current_game_state)
-    # choise = random.randrange(11)
-    # if choise == 0:
-    #     return best_function(current_game_state)
-    # return better_evaluation_function(current_game_state)
 
 
 # Abbreviation
