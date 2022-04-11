@@ -1,4 +1,5 @@
 import math
+import random
 
 import numpy as np
 import abc
@@ -339,30 +340,40 @@ def better_evaluation_function(current_game_state):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
+    if not current_game_state.get_legal_actions(0):
+        pass
     board = current_game_state.board
     max_tile = current_game_state.max_tile
     score = current_game_state.score
-    empty_cell = 16 - np.count_nonzero(board)
-    weight = {"smooth": 0.1, "mono": 1, "empty": 2.7, "max_tile": 1}
+    empty_cell = 0
+    if np.count_nonzero(board) != 16:
+        empty_cell = np.log(16 - np.count_nonzero(board))
+    # weight = {"smooth": 0.1, "mono": 1, "empty": 2.7, "max_tile": 1}
+    weight = {"smooth": 0.1, "mono": 0.5, "empty": 2.7, "max_tile": 1}
+    # weight = {"smooth": 0.3, "mono": 0.5, "empty": 2.7, "max_tile": 1}
     smooth = smoothness(board)
     best = -1
     for i in range(1, 4):
         current = 0
-        for row in range(3):
-            for col in range(2):
+        for row in range(4):
+            for col in range(3):
                 if board[row][col] >= board[row][col + 1]:
+                    # current += board[row][col] - board[row][col + 1]
                     current += board[row][col]
 
-        for col in range(3):
-            for row in range(2):
+        for col in range(4):
+            for row in range(3):
                 if board[row][col] >= board[row + 1][col]:
+                    # current += board[row][col] - board[row+1][col]
                     current += board[row][col]
 
         if current > best:
             best = current
         board = get_rotated_board(board)
 
-    return best + score
+    return best * weight["mono"] + max_tile * weight["max_tile"] + empty_cell * weight["empty"] + \
+           weight["smooth"] * smooth
+    # return best + score
 
 
 def mono(current_game_state):
@@ -425,14 +436,20 @@ def mono(current_game_state):
 
 def best_function(current_game_state):
     weight = [[15, 14, 13, 12], [8, 9, 10, 11], [7, 6, 5, 4], [0, 1, 2, 3]]
-
-    if not current_game_state.get_legal_actions(0):
-        return current_game_state.score
-
+    board = current_game_state.board
+    successor_sum = 0
     board_x = len(current_game_state.board)
     board_y = len(current_game_state.board[0])
 
-    best = -1
+    if not current_game_state.get_legal_actions(0):
+        # return current_game_state.score
+        for i in range(board_x):
+            for j in range(board_y):
+                if board[i][j] > 0:
+                    successor_sum += board[i][j] * weight[i][j]
+        return successor_sum
+
+    besti = -1
     for action in current_game_state.get_legal_actions(0):
         successor_game_state = current_game_state.generate_successor(action=action)
         successor_sum = 0
@@ -440,10 +457,10 @@ def best_function(current_game_state):
             for j in range(board_y):
                 if successor_game_state.board[i][j] > 0:
                     successor_sum += successor_game_state.board[i][j] * weight[i][j]
-        if successor_sum > best:
-            best = successor_sum
+        if successor_sum > besti:
+            besti = successor_sum
 
-    return best
+    return besti
 
 
 def daniel_try(current_game_state):
@@ -458,9 +475,34 @@ def daniel_try(current_game_state):
                 successor_sum += board[i][j] * weight[i][j]
     return successor_sum
 
+    # if not current_game_state.get_legal_actions(0):
+    #     # return current_game_state.score
+    #     for i in range(board_x):
+    #         for j in range(board_y):
+    #             if board[i][j] > 0:
+    #                 successor_sum += board[i][j] * weight[i][j]
+    #     return successor_sum
+    #
+    # besti = -1
+    # for k in range(4):
+    #     successor_sum = 0
+    #     for i in range(board_x):
+    #         for j in range(board_y):
+    #             if board[i][j] > 0:
+    #                 successor_sum += board[i][j] * weight[i][j]
+    #     if successor_sum > besti:
+    #         besti = successor_sum
+    #     board = get_rotated_board(board)
+    #
+    # return besti
+
 
 def daniel(current_game_state):
     return daniel_try(current_game_state)
+    # choise = random.randrange(11)
+    # if choise == 0:
+    #     return best_function(current_game_state)
+    # return better_evaluation_function(current_game_state)
 
 
 # Abbreviation
