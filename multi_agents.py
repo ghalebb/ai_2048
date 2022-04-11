@@ -292,14 +292,16 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             for i in range(legal_moves_length):
                 this_move = game_state.generate_successor(turn, legal_moves[i])
                 best_score = max(best_score,
-                                 self.expectimax_search(this_move, depth - 1, -1 * turn + 1, best_score))
+                                 self.expectimax_search(this_move, depth - 1, -1 * turn + 1,
+                                                        best_score))
             return best_score
 
         else:
             score = 0
             for i in range(legal_moves_length):
                 this_move = game_state.generate_successor(turn, legal_moves[i])
-                score += self.expectimax_search(this_move, depth - 1, -1 * turn + 1, best_score) / len(
+                score += self.expectimax_search(this_move, depth - 1, -1 * turn + 1,
+                                                best_score) / len(
                     legal_moves)
             return score
 
@@ -444,6 +446,24 @@ def best_function(current_game_state):
     return best
 
 
+def daniel_try(current_game_state):
+    weight = [[15, 14, 13, 12], [8, 9, 10, 11], [7, 6, 5, 4], [0, 1, 2, 3]]
+    board = current_game_state.board
+    successor_sum = 0
+    board_x = len(current_game_state.board)
+    board_y = len(current_game_state.board[0])
+    for i in range(board_x):
+        for j in range(board_y):
+            if board[i][j] > 0:
+                successor_sum += board[i][j] * weight[i][j]
+    return successor_sum
+
+
+def daniel(current_game_state):
+    return daniel_try(current_game_state)
+
+
 # Abbreviation
 better = better_evaluation_function
 best = best_function
+dani = daniel
