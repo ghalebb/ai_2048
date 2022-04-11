@@ -213,8 +213,6 @@ class MinmaxAgent(MultiAgentSearchAgent):
             return lowest_score
 
 
-
-
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
     Your minimax agent with alpha-beta pruning (question 3)
@@ -226,34 +224,38 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         """*** YOUR CODE HERE ***"""
         action_max = None
-        alfa = -math.inf
+        alpha = -math.inf
         beta = math.inf
         for ac in game_state.get_legal_actions(0):
             tmp = game_state.generate_successor(0, ac)
-            cost = self.get_action_r(tmp, 2 * self.depth - 1, 1, alfa, beta)
-            if cost > alfa:
-                alfa = cost
+            cost = self.alpha_beta_search(tmp, 2 * self.depth - 1, 1, alpha, beta)
+            if cost > alpha:
+                alpha = cost
                 action_max = ac
 
         return action_max
 
-    def get_action_r(self, game_state, depth, turn, alfa, beta):
-        ls_action = game_state.get_legal_actions(turn)
-        if depth == 0 or len(ls_action) == 0:
+    def alpha_beta_search(self, game_state, depth, turn, alpha, beta):
+        legal_moves = game_state.get_legal_actions(turn)
+        legal_moves_length = len(legal_moves)
+        if depth == 0 or len(legal_moves) == 0:
             return self.evaluation_function(game_state)
         if turn == 0:
-            for i in range(len(ls_action)):
-                this_move = game_state.generate_successor(turn, ls_action[i])
-                alfa = max(alfa, self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa, beta))
-                if beta <= alfa:
+            for i in range(legal_moves_length):
+                this_move = game_state.generate_successor(turn, legal_moves[i])
+                alpha = max(alpha,
+                            self.alpha_beta_search(this_move, depth - 1, -1 * turn + 1, alpha,
+                                                   beta))
+                if beta <= alpha:
                     break
-            return alfa
+            return alpha
 
         else:
-            for i in range(len(ls_action)):
-                this_move = game_state.generate_successor(turn, ls_action[i])
-                beta = min(beta, self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa, beta))
-                if beta <= alfa:
+            for i in range(legal_moves_length):
+                this_move = game_state.generate_successor(turn, legal_moves[i])
+                beta = min(beta,
+                           self.alpha_beta_search(this_move, depth - 1, -1 * turn + 1, alpha, beta))
+                if beta <= alpha:
                     break
             return beta
 
@@ -271,33 +273,34 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         """*** YOUR CODE HERE ***"""
-        action_max = None
-        alfa = -math.inf
+        best_action = None
+        best_score = -math.inf
         for ac in game_state.get_legal_actions(0):
             tmp = game_state.generate_successor(0, ac)
-            cost = self.get_action_r(tmp, 2 * self.depth - 1, 1, alfa)
-            if cost > alfa:
-                alfa = cost
-                action_max = ac
+            cost = self.expectimax_search(tmp, 2 * self.depth - 1, 1, best_score)
+            if cost > best_score:
+                best_score = cost
+                best_action = ac
+        return best_action
 
-        return action_max
-
-    def get_action_r(self, game_state, depth, turn, alfa):
-        ls_action = game_state.get_legal_actions(turn)
-        if depth == 0 or len(ls_action) == 0:
+    def expectimax_search(self, game_state, depth, turn, best_score):
+        legal_moves = game_state.get_legal_actions(turn)
+        legal_moves_length = len(legal_moves)
+        if depth == 0 or len(legal_moves) == 0:
             return self.evaluation_function(game_state)
         if turn == 0:
-            for i in range(len(ls_action)):
-                this_move = game_state.generate_successor(turn, ls_action[i])
-                alfa = max(alfa, self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa))
-            return alfa
+            for i in range(legal_moves_length):
+                this_move = game_state.generate_successor(turn, legal_moves[i])
+                best_score = max(best_score,
+                                 self.expectimax_search(this_move, depth - 1, -1 * turn + 1, best_score))
+            return best_score
 
         else:
             score = 0
-            for i in range(len(ls_action)):
-                this_move = game_state.generate_successor(turn, ls_action[i])
-                score += self.get_action_r(this_move, depth - 1, -1 * turn + 1, alfa) / len(
-                    ls_action)
+            for i in range(legal_moves_length):
+                this_move = game_state.generate_successor(turn, legal_moves[i])
+                score += self.expectimax_search(this_move, depth - 1, -1 * turn + 1, best_score) / len(
+                    legal_moves)
             return score
 
 
