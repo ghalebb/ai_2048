@@ -1,6 +1,4 @@
 import math
-import random
-
 import numpy as np
 import abc
 import util
@@ -340,8 +338,6 @@ def better_evaluation_function(current_game_state):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    if not current_game_state.get_legal_actions(0):
-        pass
     board = current_game_state.board
     max_tile = current_game_state.max_tile
     score = current_game_state.score
@@ -352,6 +348,12 @@ def better_evaluation_function(current_game_state):
     weight = {"smooth": 0.1, "mono": 0.5, "empty": 2.7, "max_tile": 1}
     # weight = {"smooth": 0.3, "mono": 0.5, "empty": 2.7, "max_tile": 1}
     smooth = smoothness(board)
+    return mono(current_game_state) * weight["mono"] + max_tile * weight["max_tile"] + empty_cell * weight["empty"] + \
+           weight["smooth"] * smooth
+    # return best + score
+
+def mono(current_game_state):
+    board = current_game_state.board
     best = -1
     for i in range(1, 4):
         current = 0
@@ -370,68 +372,7 @@ def better_evaluation_function(current_game_state):
         if current > best:
             best = current
         board = get_rotated_board(board)
-
-    return best * weight["mono"] + max_tile * weight["max_tile"] + empty_cell * weight["empty"] + \
-           weight["smooth"] * smooth
-    # return best + score
-
-
-def mono(current_game_state):
-    board = current_game_state.board
-    max_tile = current_game_state.max_tile
-    score = current_game_state.score
-
-    totals = [0, 0, 0, 0]
-    for x in range(4):
-        current = 0
-        next = current + 1
-        while next < 4:
-            while next < 4 and board[x][next] > 0:
-                next += 1
-            if next >= 4:
-                next -= 1
-            if board[x][current] > 0:
-                current_value = math.log(board[x][current]) / math.log(2)
-            else:
-                current_value = 0
-
-            if board[x][next] > 0:
-                next_value = math.log(board[x][next]) / math.log(2)
-            else:
-                next_value = 0
-
-            if current_value > next_value:
-                totals[0] += next_value - current_value
-            elif next_value > current_value:
-                totals[1] += current_value - next_value
-            current = next
-            next += 1
-    for y in range(4):
-        current = 0
-        next = current + 1
-        while next < 4:
-            while next < 4 and board[next][y] > 0:
-                next += 1
-            if next >= 4:
-                next -= 1
-            if board[current][y] > 0:
-                current_value = math.log(board[current][y]) / math.log(2)
-            else:
-                current_value = 0
-
-            if board[next][y] > 0:
-                next_value = math.log(board[next][y]) / math.log(2)
-            else:
-                next_value = 0
-
-            if current_value > next_value:
-                totals[2] += next_value - current_value
-            elif next_value > current_value:
-                totals[3] += current_value - next_value
-            current = next
-            next += 1
-
-    return max(totals[0], totals[1]) + max(totals[2], totals[3])
+    return best
 
 
 def best_function(current_game_state):
@@ -464,7 +405,8 @@ def best_function(current_game_state):
 
 
 def daniel_try(current_game_state):
-    weight = [[15, 14, 13, 12], [8, 9, 10, 11], [7, 6, 5, 4], [0, 1, 2, 3]]
+    # weight = [[15, 14, 13, 12], [8, 9, 10, 11], [7, 6, 5, 4], [0, 1, 2, 3]]
+    weight = [[0, 1, 2, 3], [7, 6, 5, 4], [8, 9, 10, 11], [15, 14, 13, 12]]
     board = current_game_state.board
     successor_sum = 0
     board_x = len(current_game_state.board)
@@ -472,8 +414,10 @@ def daniel_try(current_game_state):
     for i in range(board_x):
         for j in range(board_y):
             if board[i][j] > 0:
-                successor_sum += board[i][j] * weight[i][j]
-    return successor_sum
+                successor_sum += board[i][j] * pow(2, weight[i][j])
+    # if board[3][0] == current_game_state.max_tile:
+    #     successor_sum = successor_sum * weight[-1][0]
+    return successor_sum + 0.05 * mono(current_game_state) + 0.5 * smoothness(board)
 
 
 def daniel(current_game_state):
