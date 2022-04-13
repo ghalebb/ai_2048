@@ -338,7 +338,7 @@ def get_rotated_board(board):
 
 
 def smoothness(board):
-    """Smoothness heuristic measures the difference between neighboring tiles and tries to minimize this count"""
+    """measure difference between tiles and minimize it"""
     smoothness = 0
 
     row, col = len(board), len(board[0]) if len(board) > 0 else 0
@@ -358,7 +358,7 @@ def better_evaluation_function(current_game_state):
     Your extreme 2048 evaluation function (question 5).
 
     DESCRIPTION: So we activate the smoothness function to calculate the difference between
-    neighbour tiles and minimize the count, we also calculate the monotonicity in all directions
+    neighbour tiles and minimize it, we also calculate the monotonicity in all directions
     then we sum the score all together
     """
     "*** YOUR CODE HERE ***"
@@ -370,9 +370,11 @@ def better_evaluation_function(current_game_state):
         empty_cell = np.log(16 - np.count_nonzero(board))
     weight = {"smooth": 0.1, "mono": 0.5, "empty": 2.7, "max_tile": 1}
     smooth = smoothness(board)
-    return monotonicity(current_game_state) * weight["mono"] + max_tile * weight["max_tile"] + empty_cell * \
+    return monotonicity(current_game_state) * weight["mono"] + max_tile * weight[
+        "max_tile"] + empty_cell * \
            weight["empty"] + \
            weight["smooth"] * smooth
+
 
 def monotonicity(current_game_state):
     board = current_game_state.board
@@ -393,6 +395,7 @@ def monotonicity(current_game_state):
         board = get_rotated_board(board)
     return best
 
+
 def best_function(current_game_state):
     weight = [[15, 14, 13, 12], [8, 9, 10, 11], [7, 6, 5, 4], [0, 1, 2, 3]]
     board = current_game_state.board
@@ -409,20 +412,19 @@ def best_function(current_game_state):
         # return successor_sum
         return score_evaluation_function(current_game_state)
 
-    besti = -1
+    best = -1
     for action in succ_actions:
         successor_game_state = current_game_state.generate_successor(action=action)
         for i in range(board_x):
             for j in range(board_y):
                 if successor_game_state.board[i][j] > 0:
                     successor_score += successor_game_state.board[i][j] * weight[i][j]
-        if successor_score > besti:
-            besti = successor_score
+        if best<successor_score:
+            best = successor_score
         successor_score = 0
 
-    return besti
+    return best
 
 
 # Abbreviation
 better = better_evaluation_function
-best = best_function
