@@ -121,7 +121,6 @@ class ReflexAgent(Agent):
         board = successor_game_state.board
         max_tile = successor_game_state.max_tile
         score = successor_game_state.score
-
         "*** YOUR CODE HERE ***"
         row_len = len(board)
         col_len = len(board[0])
@@ -371,11 +370,13 @@ def better_evaluation_function(current_game_state):
     weight = {"smooth": 0.1, "mono": 0.5, "empty": 2.7, "max_tile": 1}
     # weight = {"smooth": 0.3, "mono": 0.5, "empty": 2.7, "max_tile": 1}
     smooth = smoothness(board)
-    return mono(current_game_state) * weight["mono"] + max_tile * weight["max_tile"] + empty_cell * weight["empty"] + \
+    return monotonicity(current_game_state) * weight["mono"] + max_tile * weight["max_tile"] + empty_cell * \
+           weight["empty"] + \
            weight["smooth"] * smooth
     # return best + score
 
-def mono(current_game_state):
+
+def monotonicity(current_game_state):
     board = current_game_state.board
     best = -1
     for i in range(1, 4):
@@ -427,24 +428,6 @@ def best_function(current_game_state):
     return besti
 
 
-def daniel_try(current_game_state):
-    weight = [[15, 14, 13, 12], [8, 9, 10, 11], [7, 6, 5, 4], [0, 1, 2, 3]]
-    board = current_game_state.board
-    successor_sum = 0
-    board_x = len(current_game_state.board)
-    board_y = len(current_game_state.board[0])
-    for i in range(board_x):
-        for j in range(board_y):
-            if board[i][j] > 0:
-                successor_sum += board[i][j] * weight[i][j]
-    return successor_sum
-
-
-def daniel(current_game_state):
-    return daniel_try(current_game_state)
-
-
 # Abbreviation
 better = better_evaluation_function
 best = best_function
-dani = daniel
