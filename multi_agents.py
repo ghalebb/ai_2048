@@ -1,6 +1,4 @@
 import math
-import random
-
 import numpy as np
 import abc
 import util
@@ -116,12 +114,10 @@ class ReflexAgent(Agent):
         """
 
         # Useful information you can extract from a GameState (game_state.py)
-
         successor_game_state = current_game_state.generate_successor(action=action)
         board = successor_game_state.board
         max_tile = successor_game_state.max_tile
         score = successor_game_state.score
-        "*** YOUR CODE HERE ***"
         row_len = len(board)
         col_len = len(board[0])
         for k in range(row_len * col_len):
@@ -397,29 +393,28 @@ def monotonicity(current_game_state):
 
 
 def best_function(current_game_state):
+    """ our function iterates over the the successors and gets the highest score according
+    to the given weighted score with the snake way"""
     weight = [[15, 14, 13, 12], [8, 9, 10, 11], [7, 6, 5, 4], [0, 1, 2, 3]]
     board = current_game_state.board
     board_x = len(current_game_state.board)
     board_y = len(current_game_state.board[0])
     successor_score = 0
+    best = -1
     succ_actions = current_game_state.get_legal_actions(0)
     if not succ_actions:
-        # return current_game_state.score
-        # for i in range(board_x):
-        #     for j in range(board_y):
-        #         if board[i][j] > 0:
-        #             successor_sum += board[i][j] * weight[i][j]
-        # return successor_sum
-        return score_evaluation_function(current_game_state)
-
-    best = -1
+        for i in range(board_x):
+            for j in range(board_y):
+                if board[i][j] > 0:
+                    successor_score += board[i][j] * weight[i][j]
+        return successor_score
     for action in succ_actions:
         successor_game_state = current_game_state.generate_successor(action=action)
         for i in range(board_x):
             for j in range(board_y):
                 if successor_game_state.board[i][j] > 0:
                     successor_score += successor_game_state.board[i][j] * weight[i][j]
-        if best<successor_score:
+        if best < successor_score:
             best = successor_score
         successor_score = 0
 
