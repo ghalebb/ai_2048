@@ -357,7 +357,9 @@ def better_evaluation_function(current_game_state):
     """
     Your extreme 2048 evaluation function (question 5).
 
-    DESCRIPTION: <write something here so we know what you did>
+    DESCRIPTION: So we activate the smoothness function to calculate the difference between
+    neighbour tiles and minimize the count, we also calculate the monotonicity in all directions
+    then we sum the score all together
     """
     "*** YOUR CODE HERE ***"
     board = current_game_state.board
@@ -366,14 +368,11 @@ def better_evaluation_function(current_game_state):
     empty_cell = 0
     if np.count_nonzero(board) != 16:
         empty_cell = np.log(16 - np.count_nonzero(board))
-    # weight = {"smooth": 0.1, "mono": 1, "empty": 2.7, "max_tile": 1}
     weight = {"smooth": 0.1, "mono": 0.5, "empty": 2.7, "max_tile": 1}
-    # weight = {"smooth": 0.3, "mono": 0.5, "empty": 2.7, "max_tile": 1}
     smooth = smoothness(board)
     return monotonicity(current_game_state) * weight["mono"] + max_tile * weight["max_tile"] + empty_cell * \
            weight["empty"] + \
            weight["smooth"] * smooth
-    # return best + score
 
 def monotonicity(current_game_state):
     board = current_game_state.board
@@ -383,13 +382,10 @@ def monotonicity(current_game_state):
         for row in range(4):
             for col in range(3):
                 if board[row][col] >= board[row][col + 1]:
-                    # current += board[row][col] - board[row][col + 1]
                     current += board[row][col]
-
         for col in range(4):
             for row in range(3):
                 if board[row][col] >= board[row + 1][col]:
-                    # current += board[row][col] - board[row+1][col]
                     current += board[row][col]
 
         if current > best:
