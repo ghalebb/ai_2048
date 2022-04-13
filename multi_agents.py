@@ -109,8 +109,10 @@ class ReflexAgent(Agent):
     def evaluation_function(self, current_game_state, action):
         """
         Design a better evaluation function here.
+
         The evaluation function takes in the current and proposed successor
         GameStates (GameState.py) and returns a number, where higher numbers are better.
+
         """
 
         # Useful information you can extract from a GameState (game_state.py)
@@ -336,7 +338,7 @@ def get_rotated_board(board):
     return rotated_board
 
 
-def smoothness1(board):
+def smoothness(board):
     """Smoothness heuristic measures the difference between neighboring tiles and tries to minimize this count"""
     smoothness = 0
 
@@ -359,8 +361,6 @@ def better_evaluation_function(current_game_state):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    if not current_game_state.get_legal_actions(0):
-        pass
     board = current_game_state.board
     max_tile = current_game_state.max_tile
     score = current_game_state.score
@@ -370,7 +370,13 @@ def better_evaluation_function(current_game_state):
     # weight = {"smooth": 0.1, "mono": 1, "empty": 2.7, "max_tile": 1}
     weight = {"smooth": 0.1, "mono": 0.5, "empty": 2.7, "max_tile": 1}
     # weight = {"smooth": 0.3, "mono": 0.5, "empty": 2.7, "max_tile": 1}
-    smooth = smoothness1(board)
+    smooth = smoothness(board)
+    return mono(current_game_state) * weight["mono"] + max_tile * weight["max_tile"] + empty_cell * weight["empty"] + \
+           weight["smooth"] * smooth
+    # return best + score
+
+def mono(current_game_state):
+    board = current_game_state.board
     best = -1
     for i in range(1, 4):
         current = 0
@@ -389,10 +395,7 @@ def better_evaluation_function(current_game_state):
         if current > best:
             best = current
         board = get_rotated_board(board)
-
-    return best * weight["mono"] + max_tile * weight["max_tile"] + empty_cell * weight["empty"] + \
-           weight["smooth"] * smooth
-    # return best + score
+    return best
 
 
 def best_function(current_game_state):
@@ -441,27 +444,7 @@ def daniel(current_game_state):
     return daniel_try(current_game_state)
 
 
-def bet(current_game_state):
-    if not current_game_state.get_legal_actions(0):  # legal actions  = []
-        return current_game_state.score  # someone won or draw
-
-    best_score = 0
-    for action in current_game_state.get_legal_actions(0):
-        successor_game_state = current_game_state.generate_successor(action=action)
-
-        successor_sum = 0
-        for i in range(len(successor_game_state.board)):
-            for j in range(len(successor_game_state.board[i])):
-                # successor_sum += successor_game_state.board[i][j] * weight[i][j]
-                successor_sum += score_evaluation_function(current_game_state)
-        if successor_sum > best_score:
-            best_score = successor_sum
-
-    return best_score
-
-
 # Abbreviation
 better = better_evaluation_function
 best = best_function
 dani = daniel
-be = bet
