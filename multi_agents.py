@@ -39,13 +39,78 @@ class ReflexAgent(Agent):
 
         return legal_moves[chosen_index]
 
+    def check_row(self, board, row, col, row_len, col_len):
+        res = 0
+        if row == 0 and col == 0:
+            # (0,0) with (0,1) or (1,0)
+            if board[row][col] > 0 and (
+                    board[row][col] == board[row + 1][col] or board[row][col] == board[row][
+                col + 1]):
+                res += board[row][col]
+            return res, True
+        if row == 0 and col == col_len - 1:
+            # (0,n-1) with (1,n-1) or (0,n-2)
+            if (board[row][col_len - 1] == board[row + 1][col_len - 1] or board[row][col] ==
+                board[0][col - 1]) and \
+                    board[row][col] > 0:
+                res += board[row][col_len - 1]
+            return res, True
+        if row == 0:  # j>0
+            # (0,j) with (0,j-1) or (i+1,j) or (0,j+1) // j>0
+            if (board[row][col] == board[row][col - 1] or board[row][col] == board[row][
+                col + 1] or board[row + 1][col] == board[row][col]) and board[row][col] > 0:
+                res += board[row][col]
+            return res, True
+
+        if row == row_len - 1 and col == 0:
+            # (n-1,0) with (n-2,0) or (n-1,1)
+            if board[row][col] > 0 and (
+                    board[row][col] == board[row - 1][col] or board[row][col] == board[row][
+                col + 1]):
+                res += board[row][col]
+            return res, True
+
+        if row == row_len - 1 and col == col_len - 1:
+            # (n-1,n-1) with (n-2,n-1) or (n-1,n-2)
+            if board[row][col] > 0 and (
+                    board[row][col] == board[row - 1][col] or board[row][col] == board[row][
+                col - 1]):
+                res += board[row][col]
+            return res, True
+
+        if row == row_len - 1:  # j>0
+            # (n-1,j) with (n-1,j-1) or (n-1,j+1)
+            if board[row][col] > 0 and (
+                    board[row][col] == board[row][col - 1] or board[row][col] == board[row][
+                col + 1] or board[row][col] == board[row - 1][col]):
+                res += board[row][col]
+            return res, True
+        return 0, False
+
+    def check_col(self, board, row, col, col_len):
+        res = 0
+        if col == 0:
+            # (i,0) with (i+1,j) or (i-1,j) or (i,j+1)
+            if board[row][col] > 0 and (
+                    board[row][col] == board[row + 1][col] or board[row][col] == board[row - 1][
+                col] or
+                    board[row][col] == board[row][col + 1]):
+                res += board[row][col]
+            return res, True
+        if col == col_len - 1:
+            # (i,n-1) with (i+1,n-1) or (i-1,n-1) or (i,n-2)
+            if board[row][col] > 0 and (
+                    board[row][col] == board[row + 1][col] or board[row][col] ==
+                    board[row - 1][col] or board[row][col] == board[row][col - 1]):
+                res += board[row][col]
+            return res, True
+        return 0, False
+
     def evaluation_function(self, current_game_state, action):
         """
         Design a better evaluation function here.
-
         The evaluation function takes in the current and proposed successor
         GameStates (GameState.py) and returns a number, where higher numbers are better.
-
         """
 
         # Useful information you can extract from a GameState (game_state.py)
@@ -58,69 +123,23 @@ class ReflexAgent(Agent):
         "*** YOUR CODE HERE ***"
         row_len = len(board)
         col_len = len(board[0])
-
-        for i in range(row_len):
-            for j in range(col_len):
-                if i == 0 and j == 0:
-                    # (0,0) with (0,1) or (1,0)
-                    if (board[i][j] == board[i + 1][j] or board[i][j] == board[i][
-                        j + 1]) and \
-                            board[i][j] > 0:
-                        score += board[i][j]
-                    continue
-                if i == 0 and j == col_len - 1:
-                    # (0,n-1) with (1,n-1) or (0,n-2)
-                    if (board[i][col_len - 1] == board[i + 1][col_len - 1] or board[i][j] ==
-                        board[0][j - 1]) and \
-                            board[i][j] > 0:
-                        score += board[i][col_len - 1]
-                    continue
-                if i == 0:  # j>0
-                    # (0,j) with (0,j-1) or (i+1,j) or (0,j+1) // j>0
-                    if (board[i][j] == board[i][j - 1] or board[i][j] == board[i][
-                        j + 1] or board[i + 1][j] == board[i][j]) and board[i][j] > 0:
-                        score += board[i][j]
-                    continue
-                if i == row_len - 1 and j == 0:
-                    # (n-1,0) with (n-2,0) or (n-1,1)
-                    if board[i][j] > 0 and (
-                            board[i][j] == board[i - 1][j] or board[i][j] == board[i][
-                        j + 1]):
-                        score += board[i][j]
-                    continue
-                if i == row_len - 1 and j == col_len - 1:
-                    # (n-1,n-1) with (n-2,n-1) or (n-1,n-2)
-                    if board[i][j] > 0 and (
-                            board[i][j] == board[i - 1][j] or board[i][j] == board[i][
-                        j - 1]):
-                        score += board[i][j]
-                    continue
-                if i == row_len - 1:  # j>0
-                    # (n-1,j) with (n-1,j-1) or (n-1,j+1)
-                    if board[i][j] > 0 and (
-                            board[i][j] == board[i][j - 1] or board[i][j] == board[i][
-                        j + 1] or board[i][j] == board[i - 1][j]):
-                        score += board[i][j]
-                    continue
-                if j == 0:
-                    # (i,0) with (i+1,j) or (i-1,j) or (i,j+1)
-                    if board[i][j] > 0 and (
-                            board[i][j] == board[i + 1][j] or board[i][j] == board[i - 1][j] or
-                            board[i][j] == board[i][j + 1]):
-                        score += board[i][j]
-                    continue
-                if j == col_len - 1:
-                    # (i,n-1) with (i+1,n-1) or (i-1,n-1) or (i,n-2)
-                    if board[i][j] > 0 and (board[i][j] == board[i + 1][j] or board[i][j] ==
-                                            board[i - 1][j] or board[i][j] == board[i][j - 1]):
-                        score += board[i][j]
-                    continue
-
-                # general case
-                if board[i][j] > 0 and (
-                        board[i][j] == board[i + 1][j] or board[i][j] == board[i - 1][
-                    j] or board[i][j] == board[i][j - 1] or board[i][j] == board[i][j + 1]):
-                    score += board[i][j]
+        for k in range(row_len * col_len):
+            row = k // col_len
+            col = k % col_len
+            row_check = self.check_row(board, row, col, row_len, col_len)
+            if row_check[1]:
+                score += row_check[0]
+                continue
+            col_check = self.check_col(board, row, col, col_len)
+            if col_check[1]:
+                score += col_check[0]
+                continue
+            # general case
+            if board[row][col] > 0 and (
+                    board[row][col] == board[row + 1][col] or board[row][col] == board[row - 1][
+                col] or board[row][col] == board[row][col - 1] or board[row][col] == board[row][
+                        col + 1]):
+                score += board[row][col]
 
         return score
 
@@ -317,7 +336,7 @@ def get_rotated_board(board):
     return rotated_board
 
 
-def smoothness(board):
+def smoothness1(board):
     """Smoothness heuristic measures the difference between neighboring tiles and tries to minimize this count"""
     smoothness = 0
 
@@ -351,7 +370,7 @@ def better_evaluation_function(current_game_state):
     # weight = {"smooth": 0.1, "mono": 1, "empty": 2.7, "max_tile": 1}
     weight = {"smooth": 0.1, "mono": 0.5, "empty": 2.7, "max_tile": 1}
     # weight = {"smooth": 0.3, "mono": 0.5, "empty": 2.7, "max_tile": 1}
-    smooth = smoothness(board)
+    smooth = smoothness1(board)
     best = -1
     for i in range(1, 4):
         current = 0
@@ -374,64 +393,6 @@ def better_evaluation_function(current_game_state):
     return best * weight["mono"] + max_tile * weight["max_tile"] + empty_cell * weight["empty"] + \
            weight["smooth"] * smooth
     # return best + score
-
-
-def mono(current_game_state):
-    board = current_game_state.board
-    max_tile = current_game_state.max_tile
-    score = current_game_state.score
-
-    totals = [0, 0, 0, 0]
-    for x in range(4):
-        current = 0
-        next = current + 1
-        while next < 4:
-            while next < 4 and board[x][next] > 0:
-                next += 1
-            if next >= 4:
-                next -= 1
-            if board[x][current] > 0:
-                current_value = math.log(board[x][current]) / math.log(2)
-            else:
-                current_value = 0
-
-            if board[x][next] > 0:
-                next_value = math.log(board[x][next]) / math.log(2)
-            else:
-                next_value = 0
-
-            if current_value > next_value:
-                totals[0] += next_value - current_value
-            elif next_value > current_value:
-                totals[1] += current_value - next_value
-            current = next
-            next += 1
-    for y in range(4):
-        current = 0
-        next = current + 1
-        while next < 4:
-            while next < 4 and board[next][y] > 0:
-                next += 1
-            if next >= 4:
-                next -= 1
-            if board[current][y] > 0:
-                current_value = math.log(board[current][y]) / math.log(2)
-            else:
-                current_value = 0
-
-            if board[next][y] > 0:
-                next_value = math.log(board[next][y]) / math.log(2)
-            else:
-                next_value = 0
-
-            if current_value > next_value:
-                totals[2] += next_value - current_value
-            elif next_value > current_value:
-                totals[3] += current_value - next_value
-            current = next
-            next += 1
-
-    return max(totals[0], totals[1]) + max(totals[2], totals[3])
 
 
 def best_function(current_game_state):
@@ -480,7 +441,27 @@ def daniel(current_game_state):
     return daniel_try(current_game_state)
 
 
+def bet(current_game_state):
+    if not current_game_state.get_legal_actions(0):  # legal actions  = []
+        return current_game_state.score  # someone won or draw
+
+    best_score = 0
+    for action in current_game_state.get_legal_actions(0):
+        successor_game_state = current_game_state.generate_successor(action=action)
+
+        successor_sum = 0
+        for i in range(len(successor_game_state.board)):
+            for j in range(len(successor_game_state.board[i])):
+                # successor_sum += successor_game_state.board[i][j] * weight[i][j]
+                successor_sum += score_evaluation_function(current_game_state)
+        if successor_sum > best_score:
+            best_score = successor_sum
+
+    return best_score
+
+
 # Abbreviation
 better = better_evaluation_function
 best = best_function
 dani = daniel
+be = bet
