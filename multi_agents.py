@@ -375,7 +375,6 @@ def better_evaluation_function(current_game_state):
            weight["smooth"] * smooth
     # return best + score
 
-
 def monotonicity(current_game_state):
     board = current_game_state.board
     best = -1
@@ -398,32 +397,32 @@ def monotonicity(current_game_state):
         board = get_rotated_board(board)
     return best
 
-
 def best_function(current_game_state):
     weight = [[15, 14, 13, 12], [8, 9, 10, 11], [7, 6, 5, 4], [0, 1, 2, 3]]
     board = current_game_state.board
-    successor_sum = 0
     board_x = len(current_game_state.board)
     board_y = len(current_game_state.board[0])
-
-    if not current_game_state.get_legal_actions(0):
+    successor_score = 0
+    succ_actions = current_game_state.get_legal_actions(0)
+    if not succ_actions:
         # return current_game_state.score
-        for i in range(board_x):
-            for j in range(board_y):
-                if board[i][j] > 0:
-                    successor_sum += board[i][j] * weight[i][j]
-        return successor_sum
+        # for i in range(board_x):
+        #     for j in range(board_y):
+        #         if board[i][j] > 0:
+        #             successor_sum += board[i][j] * weight[i][j]
+        # return successor_sum
+        return score_evaluation_function(current_game_state)
 
     besti = -1
-    for action in current_game_state.get_legal_actions(0):
+    for action in succ_actions:
         successor_game_state = current_game_state.generate_successor(action=action)
-        successor_sum = 0
         for i in range(board_x):
             for j in range(board_y):
                 if successor_game_state.board[i][j] > 0:
-                    successor_sum += successor_game_state.board[i][j] * weight[i][j]
-        if successor_sum > besti:
-            besti = successor_sum
+                    successor_score += successor_game_state.board[i][j] * weight[i][j]
+        if successor_score > besti:
+            besti = successor_score
+        successor_score = 0
 
     return besti
 
